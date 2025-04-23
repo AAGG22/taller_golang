@@ -36,9 +36,17 @@ flowchart TD
     D --> E[["Crear Pull Request"]]
     E --> F[["Revisión de los 3 compañeros <br/> • Comentar cambios <br/> • Aprobar/Rechazar"]]
     F --> G{¿Cumple requisitos?}
-    G -->|✅ Aprobado| H[["Merge a main <br/> • Squash commits <br/> • Borrar rama"]]
+    G -->|✅ Aprobado| H[["Merge a main <br/> • Squash commits "]]
     G -->|❌ Rechazado| C
 ```
+## El Equipo
+
+| Foto | Colaborador |
+|------|-------------|
+| <img src="https://avatars.githubusercontent.com/u/113130495?v=4" width="50" style="border-radius:50%"> | [Yamila Silva](https://github.com/YamilaAS) |
+| <img src="https://avatars.githubusercontent.com/u/40302142?v=4" width="50" style="border-radius:50%"> | [Gabriel Villalobos](https://github.com/kuhg) |
+| <img src="https://avatars.githubusercontent.com/u/95595323?v=4" width="50" style="border-radius:50%"> | [Alfredo Galván](https://github.com/AAGG22) |
+
 ## Restricciones del Equipo
 - [x] Nunca commitear directamente en main.
 - [x] Nombrar las ramas con la convension de nombres establecida.
@@ -48,8 +56,4 @@ flowchart TD
 > [!NOTE]
 > Un PR (Pull Request) es una funcionalidad clave en Git/GitHub que permite proponer cambios en un repositorio y solicitar que se fusionen con la rama principal (como main). Es el mecanismo central para la colaboración en proyectos de desarrollo.
 
-| El equipo | | |
-|-------------|------|--------|
-| Yamila Silva | <img src="https://avatars.githubusercontent.com/u/113130495?s=64&v=4?size=80" width="50"> | [@yamila](https://github.com/YamilaAS) |
-| Gabriel Villalobo | <img src="https://avatars.githubusercontent.com/u/40302142?s=64&v=4size=80" width="50"> | [@gabriel](https://github.com/kuhg) |
-| Alfredo Galván | <img src="https://avatars.githubusercontent.com/u/95595323?v=4size=80" width="50"> | [@alfredo](https://github.com/AAGG22) |
+
