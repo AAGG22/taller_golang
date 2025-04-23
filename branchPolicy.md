@@ -48,12 +48,8 @@ flowchart TD
 > [!NOTE]
 > Un PR (Pull Request) es una funcionalidad clave en Git/GitHub que permite proponer cambios en un repositorio y solicitar que se fusionen con la rama principal (como main). Es el mecanismo central para la colaboración en proyectos de desarrollo.
 
-| Colaborador | Foto | Perfil |
+| El equipo | | |
 |-------------|------|--------|
-| Yamila | <img src="https://github.com/yamila.png?size=80" width="50"> | [@yamila](https://github.com/yamila) |
-| Alfredo | <img src="https://avatars.githubusercontent.com/u/95595323?s=400&u=752486ac4298187f79bd9906aea9776b779a0d4c&v=4?size=80" width="50"> | [@alfredo](https://github.com/alfredo) |
-
-<div style="display: flex; gap: 10px; align-items: center;">
-  <img src="https://github.com/usuario1.png" width="60" style="border-radius: 50%; border: 2px solid #58a6ff;">
-  <img src="https://github.com/usuario2.png" width="60" style="border-radius: 50%; border: 2px solid #58a6ff;">
-</div>
+| Yamila Silva | <img src="https://avatars.githubusercontent.com/u/113130495?s=64&v=4?size=80" width="50"> | [@yamila](https://github.com/YamilaAS) |
+| Gabriel Villalobo | <img src="https://avatars.githubusercontent.com/u/40302142?s=64&v=4size=80" width="50"> | [@gabriel](https://github.com/kuhg) |
+| Alfredo Galván | <img src="https://avatars.githubusercontent.com/u/95595323?v=4size=80" width="50"> | [@alfredo](https://github.com/AAGG22) |
