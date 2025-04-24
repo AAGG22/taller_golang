@@ -48,10 +48,13 @@ flowchart TD
 | <img src="https://avatars.githubusercontent.com/u/95595323?v=4" width="50" style="border-radius:50%"> | [Alfredo Galván](https://github.com/AAGG22) |
 
 ## Restricciones del Equipo
-- [x] Nunca commitear directamente en main.
-- [x] Nombrar las ramas con la convension de nombres establecida.
-- [x] Probar los cambios localmente antes de subirlos.
-- [x] Cada PR debe ser revisado por los 3 compañeros.
+1. **Nunca commitear directamente en main.**
+2. **Nombrar las ramas con la convension de nombres establecida.**
+3. **Probar los cambios localmente antes de subirlos.**
+4. **Cada PR debe ser revisado por los 3 compañeros.**
+   - [x] Require pull request approvals before merging
+   - [x] Required number of approvals before merging
+   - [x] Require review from Code Owners (opcional pero recomendado)
 
 > [!NOTE]
 > Un PR (Pull Request) es una funcionalidad clave en Git/GitHub que permite proponer cambios en un repositorio y solicitar que se fusionen con la rama principal (como main). Es el mecanismo central para la colaboración en proyectos de desarrollo.
