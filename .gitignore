@@ -1,0 +1,22 @@
+#Archivos binarios
+* . exe
+* . out
+* . dll
+
+#Archivos temporales 
+* . log
+* . tmp
+
+#Config de sistema
+. DS_Store
+
+#Modulos descargados
+vendor/
+
+#IDE
+. Vscode/
+
+
+
+
+

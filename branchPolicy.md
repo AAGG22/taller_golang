@@ -53,7 +53,7 @@ flowchart TD
 3. **Probar los cambios localmente antes de subirlos.**
 4. **Cada PR debe ser revisado por los 3 compañeros.**
    - [x] Require pull request approvals before merging
-   - [x] Required number of approvals before merging: Cambia de 1 a 2
+   - [x] Required number of approvals before merging
    - [x] Require review from Code Owners (opcional pero recomendado)
 
 > [!NOTE]
