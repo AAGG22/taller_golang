@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 var (
@@ -21,14 +22,21 @@ var (
 type Service struct {
 	storage *LocalStorage
 	client  *resty.Client
+	logger  *zap.Logger
 }
 
-func NewService(storage *LocalStorage, client *resty.Client) *Service {
+func NewService(storage *LocalStorage, client *resty.Client, logger *zap.Logger) *Service {
 	client.SetBaseURL("http://localhost:8081")
+
+	if logger == nil {
+		logger, _ = zap.NewProduction()
+		defer logger.Sync()
+	}
 
 	return &Service{
 		storage: storage,
 		client:  client,
+		logger:  logger,
 	}
 }
 
@@ -61,6 +69,11 @@ func (service *Service) Create(venta *Venta) error {
 	venta.UpdatedAt = now
 	venta.Version = 1
 
+	if err := service.storage.Set(venta); err != nil {
+		service.logger.Error("failed to set venta", zap.Error(err), zap.Any("venta", venta))
+		return err
+	}
+
 	return service.storage.Set(venta)
 }
 
@@ -85,8 +98,13 @@ func (service *Service) UpdateStatus(id string, status string) (*Venta, error) {
 	venta.UpdatedAt = time.Now()
 	venta.Version++
 
-	err = service.storage.Set(venta)
-	if err != nil {
+	//err = service.storage.Set(venta)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	if err := service.storage.Set(venta); err != nil {
+		service.logger.Error("failed to update venta", zap.Error(err), zap.Any("venta", venta))
 		return nil, err
 	}
 

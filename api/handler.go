@@ -7,15 +7,18 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type ventaHandler struct {
 	ventaService *internal.Service
+	logger       *zap.Logger
 }
 
-func NewVentaHandler(service *internal.Service) *ventaHandler {
+func NewVentaHandler(service *internal.Service, logger *zap.Logger) *ventaHandler {
 	return &ventaHandler{
 		ventaService: service,
+		logger:       logger,
 	}
 }
 
@@ -36,9 +39,12 @@ func (ventaHandler *ventaHandler) HandleCreate(ginContext *gin.Context) {
 		}
 
 		ginContext.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ventaHandler.logger.Error("error al crear venta", zap.Error(err))
+
 		return
 	}
 
+	ventaHandler.logger.Info("venta created", zap.Any("venta", venta))
 	ginContext.JSON(http.StatusCreated, venta)
 }
 
@@ -50,12 +56,17 @@ func (ventaHandler *ventaHandler) HandleUpdate(ginContext *gin.Context) {
 	}
 
 	if err := ginContext.ShouldBindJSON(&input); err != nil {
+		ventaHandler.logger.Warn("json inválido al actualizar venta", zap.String("id", id), zap.Error(err))
 		ginContext.JSON(http.StatusBadRequest, gin.H{"error": "Entrada invalida"})
 		return
 	}
 
 	if input.Status != "approved" && input.Status != "rejected" {
-		ginContext.JSON(http.StatusBadRequest, gin.H{"error": "Filtro de estado inválido. Debe ser 'pending', 'approved' o 'rejected'"})
+		ventaHandler.logger.Warn("estado inválido al actualizar venta", zap.String("id", id), zap.String("status", input.Status))
+		ginContext.JSON(
+			http.StatusBadRequest,
+			gin.H{"error": "Filtro de estado inválido. Debe ser 'pending', 'approved' o 'rejected'"},
+		)
 		return
 	}
 
@@ -63,14 +74,21 @@ func (ventaHandler *ventaHandler) HandleUpdate(ginContext *gin.Context) {
 	if err != nil {
 		switch err {
 		case internal.ErrVentaNotFound:
+			ventaHandler.logger.Warn("Venta no encontrada", zap.String("id", id))
 			ginContext.JSON(http.StatusNotFound, gin.H{"error": "Venta no encontrada"})
 		case internal.ErrInvalidTransition:
+			ventaHandler.logger.Warn("transición inválida", zap.String("id", id), zap.String("status", input.Status))
 			ginContext.JSON(http.StatusConflict, gin.H{"error": "Transición de estado inválida"})
 		default:
+			ventaHandler.logger.Error("error interno al actualizar venta", zap.String("id", id), zap.Error(err))
 			ginContext.JSON(http.StatusInternalServerError, gin.H{"error": "Error interno del servidor"})
 		}
 		return
 	}
+
+	ventaHandler.logger.Info("venta actualizada correctamente",
+		zap.String("id", updatedVenta.ID),
+		zap.String("nuevo_estado", updatedVenta.Status))
 
 	response := gin.H{
 		"id":         updatedVenta.ID,
@@ -87,20 +105,32 @@ func (ventaHandler *ventaHandler) HandleSearch(ginContext *gin.Context) {
 	status := ginContext.Query("status")
 
 	if userID == "" {
+		ventaHandler.logger.Warn("falta user_id en búsqueda de ventas")
 		ginContext.JSON(http.StatusBadRequest, gin.H{"error": "user_id i es requerido"})
 		return
 	}
 
 	if status != "" && status != "pending" && status != "approved" && status != "rejected" {
-		ginContext.JSON(http.StatusBadRequest, gin.H{"error": "Filtro de estado inválido. Debe ser 'pending', 'approved' o 'rejected'"})
+		ventaHandler.logger.Warn("filtro de estado inválido en búsqueda", zap.String("status", status))
+		ginContext.JSON(
+			http.StatusBadRequest,
+			gin.H{"error": "Filtro de estado inválido. Debe ser 'pending', 'approved' o 'rejected'"},
+		)
 		return
 	}
 
 	ventas, err := ventaHandler.ventaService.SearchVentas(userID, status)
 	if err != nil {
+		ventaHandler.logger.Error("error al buscar ventas", zap.String("user_id", userID), zap.Error(err))
 		ginContext.JSON(http.StatusInternalServerError, gin.H{"error": "Error interno del servidor"})
 		return
 	}
+
+	ventaHandler.logger.Info("búsqueda de ventas realizada con éxito",
+		zap.String("user_id", userID),
+		zap.String("status", status),
+		zap.Int("cantidad", len(ventas)),
+	)
 
 	var quantity, approved, rejected, pending int
 	var totalAmount float64
