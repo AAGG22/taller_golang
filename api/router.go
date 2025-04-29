@@ -8,18 +8,16 @@ import (
 	"go.uber.org/zap"
 )
 
-func InitRoutes(router *gin.Engine) {
+func InitRoutes(router *gin.Engine, httpClient *resty.Client, localStorage *internal.LocalStorage) {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
 
-	localStorage := internal.NewLocalStorage()
-	httpClient := resty.New()
-
-	ventaService := internal.NewService(localStorage, httpClient, logger)
+	userService := internal.NewUserService(httpClient)
+	ventaService := internal.NewService(localStorage, userService, logger)
 	salesHandler := NewVentaHandler(ventaService, logger)
 
 	router.POST("/sales", salesHandler.HandleCreate)
 	router.PATCH("/sales/:id", salesHandler.HandleUpdate)
 	router.GET("/sales", salesHandler.HandleSearch)
-
+	router.GET("/sales/:id", salesHandler.HandleGet)
 }

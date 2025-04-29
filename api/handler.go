@@ -10,19 +10,19 @@ import (
 	"go.uber.org/zap"
 )
 
-type ventaHandler struct {
+type VentaHandler struct {
 	ventaService *internal.Service
 	logger       *zap.Logger
 }
 
-func NewVentaHandler(service *internal.Service, logger *zap.Logger) *ventaHandler {
-	return &ventaHandler{
+func NewVentaHandler(service *internal.Service, logger *zap.Logger) *VentaHandler {
+	return &VentaHandler{
 		ventaService: service,
 		logger:       logger,
 	}
 }
 
-func (ventaHandler *ventaHandler) HandleCreate(ginContext *gin.Context) {
+func (ventaHandler *VentaHandler) HandleCreate(ginContext *gin.Context) {
 	var venta internal.Venta
 	if err := ginContext.ShouldBindJSON(&venta); err != nil {
 		ginContext.JSON(http.StatusBadRequest, gin.H{"error": "Entrada invalida"})
@@ -48,7 +48,21 @@ func (ventaHandler *ventaHandler) HandleCreate(ginContext *gin.Context) {
 	ginContext.JSON(http.StatusCreated, venta)
 }
 
-func (ventaHandler *ventaHandler) HandleUpdate(ginContext *gin.Context) {
+func (ventaHandler *VentaHandler) HandleGet(ginContext *gin.Context) {
+	ventaId := ginContext.Param("id")
+
+	venta, err := ventaHandler.ventaService.GetVenta(ventaId)
+	if err != nil {
+		ginContext.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	ventaHandler.logger.Info("venta encontrada", zap.Any("venta", venta))
+	ginContext.JSON(http.StatusOK, venta)
+
+}
+
+func (ventaHandler *VentaHandler) HandleUpdate(ginContext *gin.Context) {
 	id := ginContext.Param("id")
 
 	var input struct {
@@ -100,13 +114,13 @@ func (ventaHandler *ventaHandler) HandleUpdate(ginContext *gin.Context) {
 	ginContext.JSON(http.StatusOK, response)
 }
 
-func (ventaHandler *ventaHandler) HandleSearch(ginContext *gin.Context) {
+func (ventaHandler *VentaHandler) HandleSearch(ginContext *gin.Context) {
 	userID := ginContext.Query("user_id")
 	status := ginContext.Query("status")
 
 	if userID == "" {
 		ventaHandler.logger.Warn("falta user_id en búsqueda de ventas")
-		ginContext.JSON(http.StatusBadRequest, gin.H{"error": "user_id i es requerido"})
+		ginContext.JSON(http.StatusBadRequest, gin.H{"error": "user_id es requerido"})
 		return
 	}
 

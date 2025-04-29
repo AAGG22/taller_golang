@@ -2,11 +2,9 @@ package internal
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -17,26 +15,32 @@ var (
 	ErrVentaNotFound     = errors.New("la venta no existe")
 	ErrInvalidTransition = errors.New("solo se puede cambiar el estado si está en 'pending'")
 	ErrInvalidStatus     = errors.New("estado inválido")
+	ErrInternalError     = errors.New("error interno")
 )
 
-type Service struct {
-	storage *LocalStorage
-	client  *resty.Client
-	logger  *zap.Logger
+// probando para test
+type Storage interface {
+	Set(*Venta) error
+	Read(string) (*Venta, error)
+	Search(userID string, status string) ([]*Venta, error)
 }
 
-func NewService(storage *LocalStorage, client *resty.Client, logger *zap.Logger) *Service {
-	client.SetBaseURL("http://localhost:8081")
+type Service struct {
+	storage     Storage // 👈 antes era *LocalStorage
+	userService UserService
+	logger      *zap.Logger
+}
 
+func NewService(storage Storage, userService UserService, logger *zap.Logger) *Service {
 	if logger == nil {
 		logger, _ = zap.NewProduction()
 		defer logger.Sync()
 	}
 
 	return &Service{
-		storage: storage,
-		client:  client,
-		logger:  logger,
+		storage:     storage,
+		userService: userService,
+		logger:      logger,
 	}
 }
 
@@ -45,17 +49,12 @@ func (service *Service) Create(venta *Venta) error {
 		return ErrInvalidAmount
 	}
 
-	resp, err := service.client.R().
-		SetHeader("Content-Type", "application/json").
-		Get("http://localhost:8080/users/" + venta.UserID)
-
+	userExist, err := service.userService.userExist(venta.UserID)
 	if err != nil {
-		return err
+		return ErrInternalError
 	}
 
-	if resp.StatusCode() < 200 || resp.StatusCode() >= 300 {
-		fmt.Println("Error en la respuesta de usuarios:", resp.Status())
-		fmt.Println("Cuerpo de la respuesta:", resp.Body())
+	if !userExist {
 		return ErrUserNotFound
 	}
 
@@ -109,6 +108,10 @@ func (service *Service) UpdateStatus(id string, status string) (*Venta, error) {
 	}
 
 	return venta, nil
+}
+
+func (service *Service) GetVenta(ventaID string) (*Venta, error) {
+	return service.storage.Read(ventaID)
 }
 
 func (service *Service) SearchVentas(userID string, status string) ([]*Venta, error) {
